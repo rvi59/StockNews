@@ -1,0 +1,66 @@
+﻿@model NewsAndStockViewModel
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<style>
+    .card-text {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.5;
+        max-height: 4.5em;
+    }
+</style>
+
+<div class="container">
+    <h4 style="text-align:center">Latest News</h4>
+    <h5 style="text-align:center;font-weight:bold">Stock Prices for @Model.CompanyInfo.CompanyName</h5>
+    <p style="text-align:center;font-weight:bold">BSE: @Model.CompanyInfo.CurrentPrice.BSE, NSE: @Model.CompanyInfo.CurrentPrice.NSE</p>
+</div>
+<br />
+
+<div class="container">
+    <div class="row">
+        @if (Model.NewsArticles == null || !Model.NewsArticles.Any())
+        {
+            <div class="col-12">
+                <div class="alert alert-info" role="alert">
+                    No records found.
+                </div>
+            </div>
+        }
+        else
+        {
+            foreach (var article in Model.NewsArticles)
+            {
+                <div class="col-12 mb-4">
+                    <div class="card h-100">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                @if (string.IsNullOrEmpty(article.image_url))
+                                {
+                                    <img src="~/Images/img_placeholder.jpg" class="card-img img-fluid" alt="Placeholder Image">
+                                }
+                                else
+                                {
+                                    <img src="@article.image_url" class="card-img img-fluid" alt="@article.title">
+                                }
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">@article.title</h5>
+                                    <p class="card-text">@article.description</p>
+                                    <a href="@article.link" class="btn btn-primary" target="_blank">View More</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

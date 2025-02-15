@@ -1,0 +1,140 @@
+﻿@{
+    ViewData["Title"] = "Companies";
+}
+
+<link href="~/css/jquery.datatables.css" rel="stylesheet" />
+<link href="~/css/jquery-ui.min.css" rel="stylesheet" />
+<script src="~/js/jquery-ui.min.js"></script>
+<script src="~/js/jquery.datatables.min.js"></script>
+
+
+
+
+<div class="container">
+    <h2>Companies</h2>
+    <div class="form-group">
+        <input type="text" id="companySearch" class="form-control" placeholder="Search company..." />
+        <input type="hidden" id="companyId" />
+        <button id="addCompany" class="btn btn-primary mt-2">Add</button>
+    </div>
+    <br />
+    <table id="companiesTable" class="table table-hover">
+        <thead>
+            <tr>
+                <th>Company Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        var table;
+
+        
+        function fetchAndPopulateTable() {
+            $.ajax({
+                url: '/Company/GetData', 
+                type: 'GET', 
+                success: function (data) {
+                    if (table) {
+                        table.destroy(); 
+                    }
+
+                  
+                    $('#companiesTable tbody').empty();
+
+                    
+                    data.forEach(function (item) {
+                        var row = `<tr>
+                                       <td>${item.companyName}</td>
+                                       <td>
+                                           <button class="btn btn-danger btn-sm deleteCompany" data-id="${item.companyId}">Delete</button>
+                                       </td>
+                                   </tr>`;
+                        $('#companiesTable tbody').append(row);
+                    });
+
+                   
+                    table = $('#companiesTable').DataTable();
+                },
+                error: function (error) {
+                    
+                    alert('Failed to fetch data.');
+                }
+            });
+        }
+
+       
+        fetchAndPopulateTable();
+
+        
+        $('#companySearch').autocomplete({
+            source: function (request, response) {
+                $.getJSON('/Company/Search', { term: request.term }, function (data) {
+                    response($.map(data, function (item) {
+                        return {
+                            label: item.companyName, // Display name in the dropdown
+                            value: item.companyName, // Value to show in the textbox
+                            id: item.companyId // Store the ID
+                        };
+                    }));
+                });
+            },
+            minLength: 2, 
+            select: function (event, ui) {
+               
+                $('#companyId').val(ui.item.id);
+            }
+        });
+
+        // Add Company
+        $('#addCompany').click(function () {
+            var companyId = $('#companyId').val(); 
+            if (companyId) {
+                $.ajax({
+                    url: '/Company/Add', 
+                    type: 'POST', 
+                    data: { id: companyId }, 
+                    success: function (data) {
+                        if (data.success) {
+                            
+                            $('#companySearch').val('');
+                            $('#companyId').val('');
+
+                           
+                            fetchAndPopulateTable();
+                        } else {
+                            alert('Failed to add company.');
+                        }
+                    },
+                    error: function (error) {
+                        
+                        alert(error.responseText);
+                    }
+                });
+            } else {
+                alert('Please select a company from the dropdown.');
+            }
+        });
+
+       
+        $('#companiesTable tbody').on('click', '.deleteCompany', function () {
+            var id = $(this).data('id');
+            var row = $(this).closest('tr');
+            $.ajax({
+                url: '/Company/Delete',
+                type: 'POST',
+                data: { id: id },
+                success: function () {
+                    table.row(row).remove().draw();
+                }
+            });
+        });
+    });
+</script>
+

@@ -1,0 +1,77 @@
+﻿@model IEnumerable<StockNews.Models.CompanyDTO> 
+<div class="container my-5">
+
+    <h5 style="text-align:center;font-weight:bold">List Of Companies</h5>
+    <br />
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            @foreach (var company in Model)
+            {
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="company-box" data-url="@Url.Action("GetNewsbyCompany", "Home", new { companyName = company.CompanyName })">
+                        <input type="hidden" value="@company.CompanyId" />
+                        <div class="company-name">@company.CompanyName</div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="no-records-box">
+                    No records found
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .company-box, .no-records-box {
+        border: 1px solid #ddd;
+        padding: 30px;
+        margin-bottom: 15px;
+        text-align: center;
+        background-color: #f9f9f9;
+        box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+        cursor:pointer;
+        min-height:130px;
+        max-height:130px
+    }
+
+
+    .company-box:hover{
+        padding: 35px;
+
+    }
+    
+    .company-name {
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .no-records-box {
+        font-size: 18px;
+        color: #888;
+    }
+</style>
+
+
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var companyBoxes = document.querySelectorAll('.company-box');
+            companyBoxes.forEach(function(box) {
+                box.addEventListener('click', function() {
+                    var url = this.getAttribute('data-url');
+                    window.location.href = url;
+                });
+            });
+        });
+    </script>
+}
